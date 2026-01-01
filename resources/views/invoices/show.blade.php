@@ -1,230 +1,166 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center no-print">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Invoice Details
             </h2>
             <div class="flex gap-2">
-                <button onclick="window.print()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                    Print
+                <!-- Print Button -->
+                <button onclick="window.print()" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2.5 px-5 rounded-lg inline-flex items-center shadow-lg transform hover:scale-105 transition-all duration-200">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    Print Invoice
                 </button>
-                <a href="{{ route('invoices.edit', $invoice) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <a href="{{ route('invoices.edit', $invoice) }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg inline-flex items-center transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
                     Edit
                 </a>
-                <a href="{{ route('invoices.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                <a href="{{ route('invoices.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200">
                     Back
                 </a>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-4">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-8" id="invoice-content">
-                <!-- Invoice Header -->
-                <div class="border-b pb-6 mb-6">
+            <!-- Invoice Container -->
+            <div class="bg-white shadow-xl" id="invoice-content" style="max-width: 210mm; margin: 0 auto;">
+                
+                <!-- Header Section -->
+                <div class="px-8 py-6 border-b-2 border-gray-200">
                     <div class="flex justify-between items-start">
+                        <!-- Company Info -->
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900">INVOICE</h1>
-                            <p class="text-gray-600 mt-2">{{ $invoice->invoice_number }}</p>
+                            <h1 class="text-2xl font-bold text-gray-800 mb-1">Workshop Name</h1>
+                            <p class="text-sm text-gray-600">Rent Car</p>
+                            <p class="text-sm text-gray-600">456 Maple Ave</p>
+                            <p class="text-sm text-gray-600">Instagram: @workshop.id</p>
                         </div>
+                        
+                        <!-- Invoice Badge -->
                         <div class="text-right">
-                            <h2 class="text-2xl font-bold text-gray-900">Workshop Name</h2>
-                            <p class="text-gray-600 mt-2">
-                                Jl. Workshop No. 123<br>
-                                Jakarta, Indonesia<br>
-                                Phone: +62 21 1234 5678<br>
-                                Email: info@workshop.com
-                            </p>
+                            <div class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg">
+                                <h2 class="text-2xl font-bold">INVOICE</h2>
+                            </div>
+                            <div class="mt-3 text-sm">
+                                <p class="text-gray-600"><span class="font-semibold">Invoice Number:</span> {{ $invoice->invoice_number }}</p>
+                                <p class="text-gray-600"><span class="font-semibold">Date:</span> {{ $invoice->invoice_date->format('d/m/Y') }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Customer & Invoice Info -->
-                <div class="grid grid-cols-2 gap-8 mb-8">
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-2">Bill To</h3>
-                        <div class="text-gray-900">
-                            <p class="font-semibold text-lg">{{ $invoice->service->vehicle->customer->name }}</p>
-                            <p class="text-gray-600 mt-1">{{ $invoice->service->vehicle->customer->phone }}</p>
-                            @if($invoice->service->vehicle->customer->email)
-                                <p class="text-gray-600">{{ $invoice->service->vehicle->customer->email }}</p>
-                            @endif
-                            @if($invoice->service->vehicle->customer->address)
-                                <p class="text-gray-600 mt-1">{{ $invoice->service->vehicle->customer->address }}</p>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="text-right">
-                        <div class="mb-4">
-                            <p class="text-sm text-gray-500">Invoice Date</p>
-                            <p class="text-gray-900 font-semibold">{{ $invoice->invoice_date->format('d F Y') }}</p>
-                        </div>
-                        @if($invoice->due_date)
-                            <div class="mb-4">
-                                <p class="text-sm text-gray-500">Due Date</p>
-                                <p class="text-gray-900 font-semibold">{{ $invoice->due_date->format('d F Y') }}</p>
-                            </div>
-                        @endif
+                <!-- Bill From / Bill To Section -->
+                <div class="px-8 py-6 bg-gray-50">
+                    <div class="grid grid-cols-2 gap-8">
+                        <!-- Bill From -->
                         <div>
-                            <p class="text-sm text-gray-500">Payment Status</p>
-                            <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full mt-1
-                                @if($invoice->payment_status == 'paid') bg-green-100 text-green-800
-                                @elseif($invoice->payment_status == 'partial') bg-yellow-100 text-yellow-800
-                                @else bg-red-100 text-red-800
-                                @endif">
-                                {{ ucfirst($invoice->payment_status) }}
-                            </span>
+                            <div class="border-l-4 border-gray-400 pl-4">
+                                <h3 class="text-sm font-bold text-gray-700 uppercase mb-3">Bill From:</h3>
+                                <p class="text-sm text-gray-800 font-semibold">Workshop Name</p>
+                                <p class="text-sm text-gray-600">456 Maple Ave</p>
+                                <p class="text-sm text-gray-600">0987654321</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Bill To -->
+                        <div>
+                            <div class="border-l-4 border-gray-400 pl-4">
+                                <h3 class="text-sm font-bold text-gray-700 uppercase mb-3">Bill To:</h3>
+                                <p class="text-sm text-gray-800 font-semibold">{{ $invoice->service->vehicle->customer->name }}</p>
+                                <p class="text-sm text-gray-600">{{ $invoice->service->vehicle->customer->address ?? '123 Elm Street' }}</p>
+                                <p class="text-sm text-gray-600">{{ $invoice->service->vehicle->customer->phone }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Vehicle Info -->
-                <div class="bg-gray-50 p-4 rounded-lg mb-8">
-                    <h3 class="text-sm font-semibold text-gray-500 uppercase mb-2">Vehicle Information</h3>
-                    <div class="grid grid-cols-2 gap-4 text-gray-900">
-                        <div>
-                            <p class="text-sm text-gray-500">License Plate</p>
-                            <p class="font-semibold">{{ $invoice->service->vehicle->license_plate }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Vehicle</p>
-                            <p class="font-semibold">{{ $invoice->service->vehicle->brand }} {{ $invoice->service->vehicle->model }} ({{ $invoice->service->vehicle->year }})</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Service Number</p>
-                            <p class="font-semibold">{{ $invoice->service->service_number }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Service Date</p>
-                            <p class="font-semibold">{{ $invoice->service->service_date->format('d F Y') }}</p>
-                        </div>
-                        @if($invoice->service->mechanic)
-                            <div>
-                                <p class="text-sm text-gray-500">Mechanic</p>
-                                <p class="font-semibold">{{ $invoice->service->mechanic->name }}</p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Service Description -->
-                @if($invoice->service->complaint || $invoice->service->action_taken)
-                    <div class="mb-8">
-                        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-2">Service Description</h3>
-                        @if($invoice->service->complaint)
-                            <div class="mb-2">
-                                <p class="text-sm text-gray-500">Complaint:</p>
-                                <p class="text-gray-900">{{ $invoice->service->complaint }}</p>
-                            </div>
-                        @endif
-                        @if($invoice->service->action_taken)
-                            <div>
-                                <p class="text-sm text-gray-500">Action Taken:</p>
-                                <p class="text-gray-900">{{ $invoice->service->action_taken }}</p>
-                            </div>
-                        @endif
-                    </div>
-                @endif
 
                 <!-- Items Table -->
-                <div class="mb-8">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Qty</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Price</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Subtotal</th>
+                <div class="px-8 py-6">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b-2 border-gray-300">
+                                <th class="text-left py-3 text-sm font-bold text-gray-700 uppercase">Item</th>
+                                <th class="text-center py-3 text-sm font-bold text-gray-700 uppercase w-24">Quantity</th>
+                                <th class="text-right py-3 text-sm font-bold text-gray-700 uppercase w-32">Rate</th>
+                                <th class="text-right py-3 text-sm font-bold text-gray-700 uppercase w-24">Tax</th>
+                                <th class="text-right py-3 text-sm font-bold text-gray-700 uppercase w-32">Amount</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody>
                             <!-- Labor Cost -->
-                            <tr>
-                                <td class="px-4 py-3 text-gray-900">Labor Cost</td>
-                                <td class="px-4 py-3 text-center text-gray-900">1</td>
-                                <td class="px-4 py-3 text-right text-gray-900">Rp {{ number_format($invoice->service->labor_cost, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-gray-900">Rp {{ number_format($invoice->service->labor_cost, 0, ',', '.') }}</td>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-4 text-sm text-gray-800">Labor Cost / Service Fee</td>
+                                <td class="py-4 text-center text-sm text-gray-800">1</td>
+                                <td class="py-4 text-right text-sm text-gray-800">Rp {{ number_format($invoice->service->labor_cost, 2, '.', ',') }}</td>
+                                <td class="py-4 text-right text-sm text-gray-800">Rp 0.00</td>
+                                <td class="py-4 text-right text-sm font-semibold text-gray-900">Rp {{ number_format($invoice->service->labor_cost, 2, '.', ',') }}</td>
                             </tr>
-
+                            
                             <!-- Spare Parts -->
                             @foreach($invoice->service->serviceItems as $item)
-                                <tr>
-                                    <td class="px-4 py-3 text-gray-900">
-                                        {{ $item->sparePart->name }}
-                                        <span class="text-xs text-gray-500">({{ $item->sparePart->code }})</span>
-                                    </td>
-                                    <td class="px-4 py-3 text-center text-gray-900">{{ $item->quantity }}</td>
-                                    <td class="px-4 py-3 text-right text-gray-900">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-                                    <td class="px-4 py-3 text-right text-gray-900">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
-                                </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-4 text-sm text-gray-800">{{ $item->sparePart->name }}</td>
+                                <td class="py-4 text-center text-sm text-gray-800">{{ $item->quantity }}</td>
+                                <td class="py-4 text-right text-sm text-gray-800">Rp {{ number_format($item->price, 2, '.', ',') }}</td>
+                                <td class="py-4 text-right text-sm text-gray-800">Rp 0.00</td>
+                                <td class="py-4 text-right text-sm font-semibold text-gray-900">Rp {{ number_format($item->subtotal, 2, '.', ',') }}</td>
+                            </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Totals -->
-                <div class="flex justify-end mb-8">
-                    <div class="w-64">
-                        <div class="flex justify-between py-2 border-b">
-                            <span class="text-gray-600">Subtotal:</span>
-                            <span class="text-gray-900 font-semibold">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</span>
+                <!-- Totals Section -->
+                <div class="px-8 pb-6">
+                    <div class="flex justify-end">
+                        <div class="w-96">
+                            <!-- Subtotal -->
+                            <div class="flex justify-between py-2 text-sm">
+                                <span class="font-semibold text-gray-700">Subtotal:</span>
+                                <span class="text-gray-900">Rp {{ number_format($invoice->subtotal, 2, '.', ',') }}</span>
+                            </div>
+                            
+                            <!-- Discount -->
+                            <div class="flex justify-between py-2 text-sm">
+                                <span class="font-semibold text-gray-700">Discount:</span>
+                                <span class="text-gray-900">Rp {{ number_format($invoice->discount, 2, '.', ',') }}</span>
+                            </div>
+                            
+                            <!-- Tax -->
+                            <div class="flex justify-between py-2 text-sm">
+                                <span class="font-semibold text-gray-700">Tax:</span>
+                                <span class="text-gray-900">Rp {{ number_format($invoice->tax, 2, '.', ',') }}</span>
+                            </div>
+                            
+                            <!-- Paid -->
+                            <div class="flex justify-between py-2 text-sm">
+                                <span class="font-semibold text-gray-700">Paid:</span>
+                                <span class="text-gray-900">Rp {{ number_format($invoice->paid, 2, '.', ',') }}</span>
+                            </div>
+                            
+                            <!-- Total -->
+                            <div class="mt-2">
+                                <div class="bg-blue-600 text-white px-4 py-3 rounded-lg flex justify-between items-center">
+                                    <span class="text-lg font-bold">Total</span>
+                                    <span class="text-xl font-bold">Rp {{ number_format($invoice->total, 2, '.', ',') }}</span>
+                                </div>
+                            </div>
                         </div>
-                        
-                        @if($invoice->tax > 0)
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-gray-600">Tax:</span>
-                                <span class="text-gray-900 font-semibold">Rp {{ number_format($invoice->tax, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
-
-                        @if($invoice->discount > 0)
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-gray-600">Discount:</span>
-                                <span class="text-red-600 font-semibold">- Rp {{ number_format($invoice->discount, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
-
-                        <div class="flex justify-between py-3 border-b-2 border-gray-900">
-                            <span class="text-gray-900 font-bold text-lg">Total:</span>
-                            <span class="text-gray-900 font-bold text-lg">Rp {{ number_format($invoice->total, 0, ',', '.') }}</span>
-                        </div>
-
-                        @if($invoice->paid > 0)
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-gray-600">Paid:</span>
-                                <span class="text-green-600 font-semibold">Rp {{ number_format($invoice->paid, 0, ',', '.') }}</span>
-                            </div>
-
-                            <div class="flex justify-between py-2">
-                                <span class="text-gray-600 font-semibold">Balance Due:</span>
-                                <span class="text-red-600 font-bold">Rp {{ number_format($invoice->remaining, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
-
-                        @if($invoice->payment_method)
-                            <div class="flex justify-between py-2 border-t mt-2 pt-2">
-                                <span class="text-gray-600">Payment Method:</span>
-                                <span class="text-gray-900 font-semibold">{{ ucfirst(str_replace('_', ' ', $invoice->payment_method)) }}</span>
-                            </div>
-                        @endif
                     </div>
                 </div>
-
-                <!-- Notes -->
-                @if($invoice->notes)
-                    <div class="border-t pt-6">
-                        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-2">Notes</h3>
-                        <p class="text-gray-900">{{ $invoice->notes }}</p>
-                    </div>
-                @endif
 
                 <!-- Footer -->
-                <div class="border-t pt-6 mt-8 text-center text-gray-500 text-sm">
-                    <p>Thank you for your business!</p>
-                    <p class="mt-2">This is a computer-generated invoice and does not require a signature.</p>
+                <div class="px-8 py-4 bg-gray-50 border-t border-gray-200">
+                    <p class="text-center text-sm text-gray-600">
+                        Thank you for your business. Payment is due within 30 days.
+                    </p>
                 </div>
+
             </div>
         </div>
     </div>
@@ -243,9 +179,17 @@
                 left: 0;
                 top: 0;
                 width: 100%;
+                box-shadow: none !important;
             }
-            nav, header, .no-print {
+            .no-print {
                 display: none !important;
+            }
+            nav, header, footer {
+                display: none !important;
+            }
+            @page {
+                size: A4;
+                margin: 10mm;
             }
         }
     </style>

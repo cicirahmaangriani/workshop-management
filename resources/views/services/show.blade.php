@@ -143,7 +143,7 @@
                                         <td class="px-4 py-3 text-sm text-gray-900">{{ $item->sparePart->name }}</td>
                                         <td class="px-4 py-3 text-sm text-gray-900 text-center">{{ $item->quantity }}</td>
                                         <td class="px-4 py-3 text-sm text-gray-900 text-right">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 text-right">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-3 text-sm text-gray-900 text-right font-semibold">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -163,7 +163,7 @@
                     <div class="space-y-2">
                         <div class="flex justify-between">
                             <span class="text-gray-600">Labor Cost:</span>
-                            <span class="text-gray-900 font-medium">Rp {{ number_format($service->labor_cost, 0, ',', '.') }}</span>
+                            <span class="text-gray-900 font-medium">Rp {{ number_format($service->labor_cost ?? 0, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Parts Cost:</span>
@@ -171,7 +171,7 @@
                         </div>
                         <div class="flex justify-between pt-2 border-t-2 border-gray-900">
                             <span class="text-gray-900 font-bold text-lg">Total Cost:</span>
-                            <span class="text-gray-900 font-bold text-lg">Rp {{ number_format($service->total_cost, 0, ',', '.') }}</span>
+                            <span class="text-gray-900 font-bold text-lg">Rp {{ number_format($service->total_cost ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>

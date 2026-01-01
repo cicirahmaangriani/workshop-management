@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'invoice_number',
         'service_id',
@@ -19,6 +16,7 @@ class Invoice extends Model
         'discount',
         'total',
         'paid',
+        'remaining',
         'payment_status',
         'payment_method',
         'notes',
@@ -32,38 +30,47 @@ class Invoice extends Model
         'discount' => 'decimal:2',
         'total' => 'decimal:2',
         'paid' => 'decimal:2',
+        'remaining' => 'decimal:2',
     ];
 
+    // ✅ Relasi ke Service
     public function service()
     {
         return $this->belongsTo(Service::class);
     }
 
-    public function getRemainingAttribute()
+    // ✅ Accessor untuk Payment Status Badge Color
+    public function getStatusBadgeColorAttribute()
     {
-        return $this->total - $this->paid;
+        return match($this->payment_status) {
+            'paid' => 'green',
+            'partial' => 'yellow',
+            'unpaid' => 'red',
+            default => 'gray',
+        };
     }
 
-    public function updatePaymentStatus()
+    // ✅ Scope untuk filter by status
+    public function scopeUnpaid($query)
     {
-        if ($this->paid >= $this->total) {
-            $this->payment_status = 'paid';
-        } elseif ($this->paid > 0) {
-            $this->payment_status = 'partial';
-        } else {
-            $this->payment_status = 'unpaid';
-        }
-        $this->save();
+        return $query->where('payment_status', 'unpaid');
     }
 
-    protected static function boot()
+    public function scopePaid($query)
     {
-        parent::boot();
+        return $query->where('payment_status', 'paid');
+    }
 
-        static::creating(function ($invoice) {
-            if (!$invoice->invoice_number) {
-                $invoice->invoice_number = 'INV-' . date('Ymd') . '-' . str_pad(Invoice::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT);
-            }
-        });
+    public function scopePartial($query)
+    {
+        return $query->where('payment_status', 'partial');
+    }
+
+    // ✅ Scope untuk overdue invoices
+    public function scopeOverdue($query)
+    {
+        return $query->where('payment_status', '!=', 'paid')
+            ->whereNotNull('due_date')
+            ->where('due_date', '<', now());
     }
 }

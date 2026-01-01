@@ -12,6 +12,11 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    // Role constants
+    const ROLE_ADMIN = 'admin';
+    const ROLE_RECEPTIONIST = 'receptionist';
+    const ROLE_MECHANIC = 'mechanic';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +26,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -44,5 +50,67 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Role helper methods
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isReceptionist(): bool
+    {
+        return $this->role === self::ROLE_RECEPTIONIST;
+    }
+
+    public function isMechanic(): bool
+    {
+        return $this->role === self::ROLE_MECHANIC;
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    public function hasAnyRole(array $roles): bool
+    {
+        return in_array($this->role, $roles);
+    }
+
+    // Permission helpers
+    public function canDelete(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    public function canManageMasterData(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    public function canAccessReports(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    public function canManageUsers(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    public function canViewCustomers(): bool
+    {
+        return $this->isAdmin() || $this->isReceptionist();
+    }
+
+    public function canManageInvoices(): bool
+    {
+        return $this->isAdmin() || $this->isReceptionist();
+    }
+
+    public function canViewAllServices(): bool
+    {
+        return $this->isAdmin() || $this->isReceptionist();
     }
 }

@@ -17,11 +17,34 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create Admin User
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@workshop.com',
-            'password' => bcrypt('password'),
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@workshop.com'],
+            [
+                'name' => 'Admin User',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+            ]
+        );
+
+        // Create Receptionist User
+        User::firstOrCreate(
+            ['email' => 'receptionist@workshop.com'],
+            [
+                'name' => 'Receptionist User',
+                'password' => bcrypt('password'),
+                'role' => 'receptionist',
+            ]
+        );
+
+        // Create Mechanic User
+        User::firstOrCreate(
+            ['email' => 'mechanic@workshop.com'],
+            [
+                'name' => 'Mechanic User',
+                'password' => bcrypt('password'),
+                'role' => 'mechanic',
+            ]
+        );
 
         // Create Sample Customers
         $customers = [

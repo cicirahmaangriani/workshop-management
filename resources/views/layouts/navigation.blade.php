@@ -14,24 +14,41 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         Dashboard
                     </x-nav-link>
+                    
+                    @if(auth()->user()->canViewCustomers())
                     <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
                         Customers
                     </x-nav-link>
                     <x-nav-link :href="route('vehicles.index')" :active="request()->routeIs('vehicles.*')">
                         Vehicles
                     </x-nav-link>
+                    @endif
+                    
+                    @if(auth()->user()->isAdmin() || auth()->user()->isReceptionist())
                     <x-nav-link :href="route('mechanics.index')" :active="request()->routeIs('mechanics.*')">
                         Mechanics
                     </x-nav-link>
+                    @endif
+                    
                     <x-nav-link :href="route('spare-parts.index')" :active="request()->routeIs('spare-parts.*')">
                         Spare Parts
                     </x-nav-link>
+                    
                     <x-nav-link :href="route('services.index')" :active="request()->routeIs('services.*')">
                         Services
                     </x-nav-link>
+                    
+                    @if(auth()->user()->canManageInvoices())
                     <x-nav-link :href="route('invoices.index')" :active="request()->routeIs('invoices.*')">
                         Invoices
                     </x-nav-link>
+                    @endif
+
+                    @if(auth()->user()->isAdmin())
+                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                        User Management
+                    </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -40,7 +57,7 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+                            <div>{{ Auth::user()->name }} <span class="text-xs text-gray-400">({{ ucfirst(Auth::user()->role) }})</span></div>
                             <div class="ml-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -83,30 +100,41 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 Dashboard
             </x-responsive-nav-link>
+            
+            @if(auth()->user()->canViewCustomers())
             <x-responsive-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
                 Customers
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('vehicles.index')" :active="request()->routeIs('vehicles.*')">
                 Vehicles
             </x-responsive-nav-link>
+            @endif
+            
+            @if(auth()->user()->isAdmin() || auth()->user()->isReceptionist())
             <x-responsive-nav-link :href="route('mechanics.index')" :active="request()->routeIs('mechanics.*')">
                 Mechanics
             </x-responsive-nav-link>
+            @endif
+            
             <x-responsive-nav-link :href="route('spare-parts.index')" :active="request()->routeIs('spare-parts.*')">
                 Spare Parts
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('services.index')" :active="request()->routeIs('services.*')">
                 Services
             </x-responsive-nav-link>
+            
+            @if(auth()->user()->canManageInvoices())
             <x-responsive-nav-link :href="route('invoices.index')" :active="request()->routeIs('invoices.*')">
                 Invoices
             </x-responsive-nav-link>
+            @endif
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
                 <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
                 <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="text-xs text-gray-400 mt-1">Role: {{ ucfirst(Auth::user()->role) }}</div>
             </div>
 
             <div class="mt-3 space-y-1">

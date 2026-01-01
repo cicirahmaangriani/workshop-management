@@ -10,9 +10,26 @@ class SparePartController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $spareParts = \App\Models\SparePart::paginate(10);
+        $query = SparePart::query();
+
+        // Search functionality
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter low stock
+        if ($request->has('low_stock') && $request->low_stock) {
+            $query->lowStock();
+        }
+
+        $spareParts = $query->latest()->paginate(10);
         return view('spare_parts.index', compact('spareParts'));
     }
 
@@ -33,14 +50,20 @@ class SparePartController extends Controller
             'name' => 'required|string|max:100',
             'category' => 'required|string|max:50',
             'description' => 'nullable|string',
-            'purchase_price' => 'required|numeric',
-            'selling_price' => 'required|numeric',
-            'stock' => 'required|integer',
-            'min_stock' => 'required|integer',
+            'purchase_price' => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0|gte:purchase_price', // ✅ Harus >= purchase_price
+            'stock' => 'required|integer|min:0',
+            'min_stock' => 'required|integer|min:0',
+        ], [
+            // ✅ Custom error messages
+            'selling_price.gte' => 'Selling price must be greater than or equal to purchase price.',
         ]);
+
         $validated['code'] = 'SP' . time();
-        \App\Models\SparePart::create($validated);
-        return redirect()->route('spare-parts.index')->with('success', 'Spare part created successfully.');
+        SparePart::create($validated);
+        
+        return redirect()->route('spare-parts.index')
+            ->with('success', 'Spare part created successfully.');
     }
 
     /**
@@ -69,13 +92,19 @@ class SparePartController extends Controller
             'name' => 'required|string|max:100',
             'category' => 'required|string|max:50',
             'description' => 'nullable|string',
-            'purchase_price' => 'required|numeric',
-            'selling_price' => 'required|numeric',
-            'stock' => 'required|integer',
-            'min_stock' => 'required|integer',
+            'purchase_price' => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0|gte:purchase_price', // ✅ Harus >= purchase_price
+            'stock' => 'required|integer|min:0',
+            'min_stock' => 'required|integer|min:0',
+        ], [
+            // ✅ Custom error messages
+            'selling_price.gte' => 'Selling price must be greater than or equal to purchase price.',
         ]);
+
         $sparePart->update($validated);
-        return redirect()->route('spare-parts.index')->with('success', 'Spare part updated successfully.');
+        
+        return redirect()->route('spare-parts.index')
+            ->with('success', 'Spare part updated successfully.');
     }
 
     /**
@@ -84,6 +113,8 @@ class SparePartController extends Controller
     public function destroy(SparePart $sparePart)
     {
         $sparePart->delete();
-        return redirect()->route('spare-parts.index')->with('success', 'Spare part deleted successfully.');
+        
+        return redirect()->route('spare-parts.index')
+            ->with('success', 'Spare part deleted successfully.');
     }
 }

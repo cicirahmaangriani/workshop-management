@@ -25,4 +25,10 @@ class ServiceItem extends Model
     {
         return $this->belongsTo(SparePart::class);
     }
+
+    // ✅ Accessor untuk Subtotal (price * quantity)
+    public function getSubtotalAttribute()
+    {
+        return ($this->price ?? 0) * ($this->quantity ?? 0);
+    }
 }
